@@ -106,9 +106,9 @@ yearly_change_count = ThisWorkbook.ActiveSheet.Range("K1", Range("K1").End(xlDow
 Debug.Print (yearly_change_count)
 
     For i = 2 To yearly_change_count
-        If Cells(i, 10).Value < 1 Then
+        If Cells(i, 10).Value < 0 Then
             Cells(i, 10).Interior.ColorIndex = 3
-        Else
+        ElseIf Cells(i, 10).Value >= 0 Then
             Cells(i, 10).Interior.ColorIndex = 4
         End If
     Next i
