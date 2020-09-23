@@ -1,0 +1,121 @@
+Sub yearly_stock():
+
+    ' Get sheet count
+    sheet_count = ThisWorkbook.Sheets.Count
+    
+    For i = 1 To sheet_count
+        
+        sheet_name = ActiveWorkbook.Sheets(i).Name
+        Debug.Print (sheet_name)
+        
+        ActiveWorkbook.Sheets(i).Activate
+        Debug.Print (Range("B2").Value)
+        
+        Call ticker(sheet_name)
+    
+    Next i
+    
+
+End Sub
+
+Sub ticker(sheet_value):
+    
+    Dim wks As Worksheet
+    Set wks = ActiveWorkbook.Sheets(sheet_value)
+    
+    Dim percentage_change, yearly_change, opening_price, closing_price As Double
+    
+    
+    'Retrieve number of rows being used
+    row_count = wks.UsedRange.Rows.Count
+    Debug.Print (row_count)
+    
+    Dim ticker, next_ticker As String
+    output_row = 2
+    accumulative_stock = 0
+    set_opening_price = True
+    
+    'Output headers
+    Cells(1, 9).Value = "Ticker"
+    Cells(1, 10).Value = "Yearly Change"
+    Cells(1, 11).Value = "Percentage Change"
+    Cells(1, 12).Value = "Total Stock Volume"
+    
+On Error Resume Next
+    
+    For Row = 2 To row_count
+        
+        ticker = Cells(Row, 1).Value
+        next_ticker = Cells(Row + 1, 1).Value
+        accumulative_stock = accumulative_stock + Cells(Row, 7).Value
+        
+        If set_opening_price = True Then
+        
+            opening_price = Cells(Row, 3).Value
+            'Debug.Print (opening_price)
+            set_opening_price = False
+            
+        End If
+        
+        If Not next_ticker = ticker Then
+        
+            'Retrieve closing price at the end of that year
+            closing_price = Cells(Row, 6).Value
+            'Debug.Print (closing_price)
+            
+            
+            'yearly change
+            yearly_change = closing_price - opening_price
+            
+    
+            'percentage change
+            percentage_change = (closing_price - opening_price) / closing_price
+            
+            
+            'Generate output in the sheet
+            Cells(output_row, 9).Value = ticker
+            Cells(output_row, 10).Value = yearly_change
+            Cells(output_row, 11).Value = percentage_change
+            Cells(output_row, 12).Value = accumulative_stock
+            
+            
+            
+            'Reinitialize variables
+            accumulative_stock = 0
+            output_row = output_row + 1
+            set_opening_price = True
+            
+            
+        End If
+    
+    Next Row
+    
+    wks.Range("K:K").NumberFormat = "0.00%"
+    
+    Call format
+    
+        
+    
+End Sub
+
+
+
+Sub format()
+
+yearly_change_count = ThisWorkbook.ActiveSheet.Range("K1", Range("K1").End(xlDown)).Cells.Count
+Debug.Print (yearly_change_count)
+
+    For i = 2 To yearly_change_count
+        If Cells(i, 10).Value < 1 Then
+            Cells(i, 10).Interior.ColorIndex = 3
+        Else
+            Cells(i, 10).Interior.ColorIndex = 4
+        End If
+    Next i
+
+End Sub
+
+    
+
+
+
